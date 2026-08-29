@@ -11,7 +11,8 @@
     "studio": "prisma studio",
     "db": "prisma dev --name cwmotors",
     "logos": "node scripts/gerar-logos-marcas.mjs",
-    "supabase:check": "node scripts/checar-supabase.mjs"
+    "supabase:check": "node scripts/checar-supabase.mjs",
+    "marca": "node scripts/previa-marca.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
