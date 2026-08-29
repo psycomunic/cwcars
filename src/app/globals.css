@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   CW MOTORS — tokens de design
+   Trocar a identidade visual = mexer SÓ neste bloco.
+   ------------------------------------------------------------------ */
+:root {
+  /* marca */
+  --brand: #e01f26;
+  --brand-hover: #b81a20;
+  --brand-soft: #fdecec;
+  --brand-contrast: #ffffff;
+
+  /* neutros */
+  --ink: #0f1115; /* preto da navbar/footer */
+  --ink-2: #1a1d24; /* cards escuros */
+  --ink-3: #2b303b; /* bordas no escuro */
+  --surface: #ffffff;
+  --surface-2: #f5f6f8; /* fundo de seção */
+  --surface-3: #eceef2;
+  --line: #e2e5ea;
+  --text: #14171d;
+  --text-muted: #6b7280;
+  --text-invert: #ffffff;
+
+  /* estados */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #2563eb;
+
+  /* forma */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgb(15 17 21 / 0.06), 0 8px 24px -12px rgb(15 17 21 / 0.18);
+  --shadow-pop: 0 12px 40px -12px rgb(15 17 21 / 0.28);
+
+  /* layout */
+  --header-h: 72px;
+  --container: 1240px;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-contrast: var(--brand-contrast);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-invert: var(--text-invert);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --radius-card: var(--radius);
+  --radius-pill: 999px;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-archivo);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+}
+
+* {
+  border-color: var(--line);
+}
+
+body {
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-archivo), var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+/* utilitários de layout usados em várias telas */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+/* scrollbar discreta nos carrosséis */
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scroll-snap-type: x mandatory;
+}
+.scroll-x > * {
+  scroll-snap-align: start;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* vídeo de fundo do hero: respeita quem prefere menos movimento
+   (o degradê escuro da seção continua sendo o fundo) */
+@media (prefers-reduced-motion: reduce) {
+  .video-hero {
+    display: none;
+  }
+}

@@ -1,0 +1,305 @@
+// CW Motors — schema do banco
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- enums
+
+enum Cambio {
+  MANUAL
+  AUTOMATICO
+  AUTOMATIZADO
+  CVT
+}
+
+enum Combustivel {
+  FLEX
+  GASOLINA
+  ETANOL
+  DIESEL
+  GNV
+  HIBRIDO
+  ELETRICO
+}
+
+enum Carroceria {
+  HATCH
+  SEDA
+  SUV
+  PICAPE
+  COUPE
+  CONVERSIVEL
+  MINIVAN
+  PERUA
+  UTILITARIO
+}
+
+enum Condicao {
+  NOVO
+  SEMINOVO
+  USADO
+}
+
+enum StatusVeiculo {
+  RASCUNHO
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
+}
+
+enum StatusLead {
+  NOVO
+  EM_ATENDIMENTO
+  NEGOCIANDO
+  CONVERTIDO
+  PERDIDO
+}
+
+enum OrigemLead {
+  DETALHE_VEICULO
+  CONTATO
+  FINANCIAMENTO
+  AVALIACAO_TROCA
+  WHATSAPP
+}
+
+enum PapelUsuario {
+  ADMIN
+  VENDEDOR
+}
+
+// ---------------------------------------------------------------- catálogo
+
+model Marca {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  slug      String   @unique
+  logoUrl   String?
+  ordem     Int      @default(0)
+  destaque  Boolean  @default(false) // aparece na faixa "marcas que trabalhamos"
+  criadoEm  DateTime @default(now())
+
+  modelos  Modelo[]
+  veiculos Veiculo[]
+
+  @@map("marcas")
+}
+
+model Modelo {
+  id      String @id @default(cuid())
+  marcaId String
+  nome    String
+  slug    String
+
+  marca    Marca     @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  veiculos Veiculo[]
+
+  @@unique([marcaId, slug])
+  @@index([marcaId])
+  @@map("modelos")
+}
+
+model Opcional {
+  id        String @id @default(cuid())
+  nome      String @unique
+  slug      String @unique
+  categoria String @default("Conforto") // Conforto | Seguranca | Tecnologia | Externo
+
+  veiculos VeiculoOpcional[]
+
+  @@map("opcionais")
+}
+
+// ---------------------------------------------------------------- veículo
+
+model Veiculo {
+  id     String @id @default(cuid())
+  slug   String @unique
+
+  marcaId  String
+  modeloId String
+  versao   String // "2.0 16V TURBO FLEX M SPORT AUTOMÁTICO"
+
+  anoFabricacao Int
+  anoModelo     Int
+
+  // valores sempre em CENTAVOS (evita float e problemas de serialização)
+  precoCentavos      Int
+  precoFipeCentavos  Int?
+  precoMedioCentavos Int?
+  precoDeCentavos    Int? // preço "de" riscado, para promoções
+
+  quilometragem Int         @default(0)
+  cambio        Cambio
+  combustivel   Combustivel
+  carroceria    Carroceria
+  condicao      Condicao    @default(USADO)
+  cor           String
+  portas        Int         @default(4)
+  finalPlaca    String?
+  renavam       String?
+  placa         String?
+
+  blindado       Boolean @default(false)
+  aceitaTroca    Boolean @default(true)
+  unicoDono      Boolean @default(false)
+  ipvaPago       Boolean @default(false)
+  licenciado     Boolean @default(false)
+  garantiaFabrica Boolean @default(false)
+  revisoesEmDia  Boolean @default(false)
+
+  descricao   String        @default("")
+  videoUrl    String?
+  tour360Url  String?
+  cidade      String        @default("")
+  estado      String        @default("")
+
+  status    StatusVeiculo @default(RASCUNHO)
+  destaque  Boolean       @default(false)
+  visitas   Int           @default(0)
+  ordem     Int           @default(0)
+
+  publicadoEm DateTime?
+  criadoEm    DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  marca     Marca             @relation(fields: [marcaId], references: [id])
+  modelo    Modelo            @relation(fields: [modeloId], references: [id])
+  imagens   VeiculoImagem[]
+  opcionais VeiculoOpcional[]
+  leads     Lead[]
+  favoritos Favorito[]
+
+  @@index([status, destaque])
+  @@index([marcaId])
+  @@index([modeloId])
+  @@index([precoCentavos])
+  @@index([anoModelo])
+  @@map("veiculos")
+}
+
+model VeiculoImagem {
+  id        String  @id @default(cuid())
+  veiculoId String
+  url       String
+  alt       String  @default("")
+  ordem     Int     @default(0)
+  capa      Boolean @default(false)
+
+  veiculo Veiculo @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
+
+  @@index([veiculoId, ordem])
+  @@map("veiculo_imagens")
+}
+
+model VeiculoOpcional {
+  veiculoId  String
+  opcionalId String
+
+  veiculo  Veiculo  @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
+  opcional Opcional @relation(fields: [opcionalId], references: [id], onDelete: Cascade)
+
+  @@id([veiculoId, opcionalId])
+  @@map("veiculo_opcionais")
+}
+
+// ---------------------------------------------------------------- CRM
+
+model Lead {
+  id        String     @id @default(cuid())
+  nome      String
+  email     String
+  telefone  String
+  mensagem  String     @default("")
+  origem    OrigemLead @default(DETALHE_VEICULO)
+  status    StatusLead @default(NOVO)
+  aceitaContato Boolean @default(false)
+  observacoes   String  @default("")
+
+  veiculoId String?
+  veiculo   Veiculo? @relation(fields: [veiculoId], references: [id], onDelete: SetNull)
+
+  // usado quando origem = FINANCIAMENTO
+  cpf            String?
+  dataNascimento DateTime?
+  entradaCentavos Int?
+  parcelas       Int?
+
+  // usado quando origem = AVALIACAO_TROCA
+  trocaPlaca String?
+  trocaMarca String?
+  trocaModelo String?
+  trocaAno   Int?
+  trocaKm    Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([status, criadoEm])
+  @@index([veiculoId])
+  @@map("leads")
+}
+
+model Favorito {
+  id        String   @id @default(cuid())
+  visitante String // id anônimo guardado em cookie
+  veiculoId String
+  criadoEm  DateTime @default(now())
+
+  veiculo Veiculo @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
+
+  @@unique([visitante, veiculoId])
+  @@map("favoritos")
+}
+
+// ---------------------------------------------------------------- admin
+
+model Usuario {
+  id        String       @id @default(cuid())
+  nome      String
+  email     String       @unique
+  senhaHash String
+  papel     PapelUsuario @default(VENDEDOR)
+  ativo     Boolean      @default(true)
+  criadoEm  DateTime     @default(now())
+
+  @@map("usuarios")
+}
+
+model Configuracao {
+  id String @id @default("singleton")
+
+  nomeLoja  String @default("CW Motors")
+  slogan    String @default("")
+  logoUrl   String?
+  faviconUrl String?
+  corPrimaria String @default("#E01F26")
+
+  telefone  String @default("")
+  whatsapp  String @default("")
+  email     String @default("")
+  endereco  String @default("")
+  cidade    String @default("")
+  estado    String @default("")
+  cep       String @default("")
+  mapaUrl   String @default("")
+
+  horarioVendas  String @default("Seg - Sáb: 9h às 19h")
+  horarioServico String @default("Seg - Sex: 8h às 18h")
+
+  instagram String @default("")
+  facebook  String @default("")
+  youtube   String @default("")
+  tiktok    String @default("")
+
+  atualizadoEm DateTime @updatedAt @default(now())
+
+  @@map("configuracoes")
+}

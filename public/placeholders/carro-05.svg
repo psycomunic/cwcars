@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 560" width="840" height="560" role="img" aria-label="Foto do veiculo indisponivel">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#eceef2"/><stop offset="1" stop-color="#d4d8df"/>
+  </linearGradient></defs>
+  <rect width="840" height="560" fill="url(#g)"/>
+  <ellipse cx="420" cy="452" rx="290" ry="26" fill="#0f1115" opacity="0.08"/>
+  <g transform="translate(0,40)" color="#9aa0aa"><path d="M120 300 L150 300 C150 300 165 236 190 222 C215 208 320 202 400 202 C480 202 540 210 566 226 C592 242 640 288 660 296 C700 312 720 320 724 340 L724 372 C724 382 716 390 706 390 L672 390 C672 352 642 322 606 322 C570 322 540 352 540 390 L300 390 C300 352 270 322 234 322 C198 322 168 352 168 390 L134 390 C124 390 116 382 116 372 L116 316 C116 306 118 302 120 300 Z" fill="currentColor" opacity="0.9"/>
+<path d="M212 232 C232 220 300 216 380 216 L380 268 L196 268 C196 268 200 240 212 232 Z" fill="#ffffff" opacity="0.22"/>
+<path d="M410 216 C480 217 534 224 556 236 C572 245 596 268 596 268 L410 268 Z" fill="#ffffff" opacity="0.22"/>
+<circle cx="234" cy="390" r="46" fill="#0f1115"/><circle cx="234" cy="390" r="22" fill="#6b7280"/>
+<circle cx="606" cy="390" r="46" fill="#0f1115"/><circle cx="606" cy="390" r="22" fill="#6b7280"/></g>
+</svg>
