@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { SimboloCW } from "@/components/site/marca-cw";
+import { MarcaCW } from "@/components/site/marca-cw";
 
 /**
- * Logotipo do site. Enquanto não houver arquivo de logo em Configurações,
- * usa a marca vetorial de `marca-cw.tsx`: o cupê de perfil ao lado do nome.
+ * Logotipo do site, na composição do logotipo original: o contorno do cupê com
+ * o monograma CW por cima e o nome da loja embaixo, bem espaçado.
+ *
+ * O letreiro é texto de verdade, não caminho vetorial — fica nítido em
+ * qualquer tela, acompanha a fonte da identidade e continua sendo o nome que a
+ * loja configurou no painel.
+ *
+ * Sobre fundo escuro (`invertido`) entra o degradê metálico do original; sobre
+ * o branco do cabeçalho ele sumiria, então ali a marca é sólida.
  */
 export function Logo({
   nome,
@@ -20,37 +27,27 @@ export function Logo({
   return (
     <Link
       href="/"
-      className={cn("inline-flex items-center gap-2.5", className)}
+      className={cn("inline-flex shrink-0 flex-col items-center", className)}
       aria-label={`${nome} — página inicial`}
     >
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt={nome} className="h-10 w-auto object-contain" />
+        <img src={logoUrl} alt={nome} className="h-12 w-auto object-contain" />
       ) : (
         <>
-          <SimboloCW
-            className={cn(
-              "h-5 w-auto shrink-0",
-              invertido ? "text-white" : "text-brand",
-            )}
+          <MarcaCW
+            cromado={invertido}
+            className={cn("h-9 w-auto", !invertido && "text-ink")}
           />
-          <span className="leading-none">
-            <span
-              className={cn(
-                "block font-display text-[19px] font-extrabold tracking-[0.02em]",
-                invertido ? "text-white" : "text-ink",
-              )}
-            >
-              {nome.toUpperCase()}
-            </span>
-            <span
-              className={cn(
-                "mt-0.5 block text-[9px] font-semibold tracking-[0.42em]",
-                invertido ? "text-white/55" : "text-text-muted",
-              )}
-            >
-              AUTO GROUP
-            </span>
+          <span
+            className={cn(
+              // o text-indent compensa o espaço que o tracking deixa depois da
+              // última letra — sem ele o nome fica deslocado para a esquerda
+              "mt-1.5 font-display text-[11px] font-extrabold tracking-[0.26em] [text-indent:0.26em]",
+              invertido ? "text-white/90" : "text-ink",
+            )}
+          >
+            {nome.toUpperCase()}
           </span>
         </>
       )}
