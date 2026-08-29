@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
+import { urlDoSite } from "@/lib/site-url";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,9 +17,7 @@ const archivo = Archivo({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: urlDoSite(),
   title: {
     default: "CW Motors — Carros novos e seminovos",
     template: "%s | CW Motors",
