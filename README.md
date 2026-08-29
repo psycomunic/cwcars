@@ -224,18 +224,85 @@ uploads voltarem a `public/uploads`.
 
 ---
 
-## Publicar em produção
+## Produção — Vercel
 
-1. Crie um Postgres gerenciado (Neon, Supabase, Railway, ou o seu servidor).
-2. Ajuste `DATABASE_URL` e gere um `AUTH_SECRET` novo (32+ caracteres):
+**Está no ar:** https://cwcars-psy-comunic.vercel.app
+(projeto `cwcars` na conta *PSY COMUNIC*, ligado ao repositório
+`psycomunic/cwcars`; todo push na `main` gera um deploy).
+
+### Variáveis de ambiente
+
+Ficam em *Project Settings → Environment Variables*, ou pela CLI:
+
+```bash
+vercel env ls
+vercel env add NOME production
+```
+
+| Variável | Valor |
+| --- | --- |
+| `DATABASE_URL` | pooler do Supabase, porta 6543 |
+| `DIRECT_URL` | session pooler, porta 5432 |
+| `DATABASE_POOL_MAX` | `5` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<REF>.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | chave secreta do Storage |
+| `SUPABASE_STORAGE_BUCKET` | `veiculos` |
+| `AUTH_SECRET` | **diferente** do usado em desenvolvimento |
+| `NEXT_PUBLIC_SITE_URL` | *ausente por enquanto* — veja abaixo |
+
+Três armadilhas que já custaram deploys quebrados aqui:
+
+- **A Vercel cria as chaves vazias.** Ao importar o repositório ela lê os nomes
+  do `.env.example` e cria cada variável **sem valor**. O painel mostra a lista
+  completa e passa a impressão de que está tudo configurado, mas o app recebe
+  string vazia — o `pg` cai no padrão `127.0.0.1:5432` e o site responde 500.
+  Confira os valores, não só os nomes.
+- **`NEXT_PUBLIC_SITE_URL` fica de fora de propósito.** Sem ela, o
+  `src/lib/site-url.ts` usa o `VERCEL_PROJECT_PRODUCTION_URL`, que a própria
+  Vercel injeta. Preencha só quando existir domínio próprio — e com o endereço
+  completo, incluindo `https://`.
+- **Variável nova só vale em deploy novo.** Depois de mexer nelas é preciso
+  redeploy (`vercel deploy --prod` ou o botão *Redeploy* no painel).
+
+### O build roda `prisma generate`
+
+`src/generated/prisma` é código gerado e não vai para o repositório, então o
+`build` do `package.json` é `prisma generate && next build`. Sem isso a Vercel
+falha com `Can't resolve '@/generated/prisma/client'`. O `prisma generate` não
+precisa de banco, só do schema — o build passa mesmo sem as variáveis.
+
+### Migrations
+
+Não rodam no deploy, de propósito: aplicar DDL automático a cada push é receita
+de perder dados. Depois de mudar o `schema.prisma`:
+
+```bash
+npx prisma migrate dev --name descricao   # cria a migration, no seu banco
+npx prisma migrate deploy                 # aplica no Supabase (usa DIRECT_URL)
+```
+
+### Deploy pela CLI
+
+```bash
+vercel deploy          # preview
+vercel deploy --prod   # produção
+vercel logs <url>      # logs de runtime
+```
+
+> Deploy feito pela CLI **não move** o alias `cwcars-git-main-…`, que pertence
+> ao Git. Os endereços de produção são `cwcars-psy-comunic.vercel.app` e
+> `cwcars.vercel.app`.
+
+### Hospedar em outro lugar
+
+1. Um Postgres gerenciado e um Storage compatível (ou troque
+   `src/lib/armazenamento.ts`, mantendo o retorno `{ urls: string[] }`).
+2. `AUTH_SECRET` novo, com 32+ caracteres:
    ```bash
    node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
    ```
-3. Aplique as migrations:
-   ```bash
-   npx prisma migrate deploy
-   ```
-4. Defina `NEXT_PUBLIC_SITE_URL` com o domínio real.
+3. `npx prisma migrate deploy`
+4. `NEXT_PUBLIC_SITE_URL` com o domínio real.
 5. `npm run build && npm start`.
 
 Use o `.env.example` como referência das variáveis.
