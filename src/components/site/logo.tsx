@@ -1,17 +1,15 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { MarcaCW } from "@/components/site/marca-cw";
 
 /**
- * Logotipo do site, na composição do logotipo original: o contorno do cupê com
- * o monograma CW por cima e o nome da loja embaixo, bem espaçado.
+ * Logotipo do site.
  *
- * O letreiro é texto de verdade, não caminho vetorial — fica nítido em
- * qualquer tela, acompanha a fonte da identidade e continua sendo o nome que a
- * loja configurou no painel.
+ * Usa o logotipo oficial vetorizado, gerado a partir do arquivo do CorelDRAW
+ * em `marca-origem/` por `npm run marca:gerar`. São dois arquivos porque o
+ * contorno do carro e a palavra MOTORS são escuros: sobre o rodapé preto eles
+ * sumiriam, então ali entra a versão invertida.
  *
- * Sobre fundo escuro (`invertido`) entra o degradê metálico do original; sobre
- * o branco do cabeçalho ele sumiria, então ali a marca é sólida.
+ * Se a loja enviar um logotipo próprio em Configurações, ele tem prioridade.
  */
 export function Logo({
   nome,
@@ -24,33 +22,22 @@ export function Logo({
   invertido?: boolean;
   className?: string;
 }) {
+  const arquivo = invertido
+    ? "/marca/logo-inverso.svg"
+    : "/marca/logo.svg";
+
   return (
     <Link
       href="/"
-      className={cn("inline-flex shrink-0 flex-col items-center", className)}
+      className={cn("inline-flex shrink-0 items-center", className)}
       aria-label={`${nome} — página inicial`}
     >
-      {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt={nome} className="h-12 w-auto object-contain" />
-      ) : (
-        <>
-          <MarcaCW
-            cromado={invertido}
-            className={cn("h-9 w-auto", !invertido && "text-ink")}
-          />
-          <span
-            className={cn(
-              // o text-indent compensa o espaço que o tracking deixa depois da
-              // última letra — sem ele o nome fica deslocado para a esquerda
-              "mt-1.5 font-display text-[11px] font-extrabold tracking-[0.26em] [text-indent:0.26em]",
-              invertido ? "text-white/90" : "text-ink",
-            )}
-          >
-            {nome.toUpperCase()}
-          </span>
-        </>
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={logoUrl || arquivo}
+        alt={nome}
+        className="h-12 w-auto object-contain"
+      />
     </Link>
   );
 }

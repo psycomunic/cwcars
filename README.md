@@ -62,6 +62,8 @@ rode mais este comando.
 | `npm run studio` | Abre o Prisma Studio (edição visual do banco)        |
 | `npm run lint`   | ESLint                                               |
 | `npm run logos`  | Regera os logotipos das marcas                       |
+| `npm run marca:gerar`  | Regera a logo do site a partir de `marca-origem/` |
+| `npm run marca:previa` | Rasteriza um SVG nos tamanhos reais, claro e escuro |
 | `npm run supabase:check` | Testa a conexão e o bucket do Supabase       |
 
 ---
@@ -143,6 +145,13 @@ src/
   leitura que caia por conexão encerrada — o que também protege contra bancos
   gerenciados que fecham conexões ociosas. Ajuste com `DATABASE_POOL_MAX`.
 - **Placeholders.** Veículos sem foto caem nas ilustrações de `public/placeholders`.
+- **Logotipo.** O arquivo de origem é o export do CorelDRAW em `marca-origem/`;
+  `npm run marca:gerar` produz de lá o que o site usa, em `public/marca/`, e o
+  favicon `src/app/icon.svg`. Não edite os gerados à mão — mexa na origem e
+  rode o comando. O gerador remove o `<image>` externo e o fundo branco que o
+  Corel deixa, e recorta a tela de 10000x10000 na medida da arte.
+  Cada peça existe em duas pinturas: a normal e a `-inverso`, para o rodapé
+  escuro — sem ela o contorno preto do carro sumiria no fundo preto.
 
 
 ---

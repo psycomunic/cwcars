@@ -1,19 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#E01F26"/>
-  <svg x="4" y="24.82" width="56" height="14.36">
+
 
 <!-- Creator: CorelDRAW (Versão OEM) -->
 <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
-viewBox="2010 4090 5810 1490"
+viewBox="1170 3350 7660 3310"
  xmlns:xlink="http://www.w3.org/1999/xlink"
  xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
  <defs>
   <style type="text/css">
    <![CDATA[
-    .fil3 {fill:black}
-    .fil2 {fill:#0F1115}
-    .fil1 {fill:#FEFEFE}
-    .fil4 {fill:#FEFEFE}
+    .fil3 {fill:#FEFEFE}
+    .fil2 {fill:#FEFEFE}
+    .fil1 {fill:#E01F26}
+    .fil4 {fill:#0F1115}
     .fil0 {fill:white}
    ]]>
   </style>
@@ -46,6 +44,4 @@ viewBox="2010 4090 5810 1490"
   <path class="fil2" d="M6257.58 3866.51c74.34,-24.22 181.98,-194.03 112.24,-241.94 -4.12,7.79 -28.41,83 -49.29,126.03 -19.15,39.44 -48.39,78.36 -62.95,115.91z"/>
   
  </g>
-</svg>
-</svg>
 </svg>
