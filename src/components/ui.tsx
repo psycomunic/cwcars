@@ -132,14 +132,28 @@ export function AreaTexto({ className, ...props }: ComponentProps<"textarea">) {
   );
 }
 
-export function Selecao({ className, ...props }: ComponentProps<"select">) {
+export function Selecao({
+  className,
+  sobreEscuro,
+  ...props
+}: ComponentProps<"select"> & {
+  /** Campo colocado sobre fundo escuro (o painel de busca do topo da home). */
+  sobreEscuro?: boolean;
+}) {
   return (
     <select
       {...props}
       className={cn(
         baseCampo,
-        "h-11 appearance-none bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat pr-9",
-        "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>')]",
+        // a seta vem do globals.css — como classe utilitária do Tailwind ela
+        // era descartada pelo tailwind-merge junto com a cor de fundo
+        "h-11 appearance-none pr-9",
+        sobreEscuro ? "seta-selecao-clara" : "seta-selecao",
+        // a lista de opções é desenhada pelo sistema: fixar as cores evita
+        // texto branco sobre fundo branco quando o campo é escuro
+        "[&>option]:bg-surface [&>option]:text-text",
+        sobreEscuro &&
+          "border-white/15 bg-white/[0.07] text-white hover:border-white/25 hover:bg-white/[0.11] focus:border-brand focus:outline-brand/40",
         className,
       )}
     />

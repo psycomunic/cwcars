@@ -77,6 +77,13 @@
   border-color: var(--line);
 }
 
+/* O site tem tema claro fixo. Sem esta declaração, navegadores com modo escuro
+   automático escurecem por conta própria campos, listas de <option> e barras de
+   rolagem, quebrando o contraste que foi desenhado aqui. */
+:root {
+  color-scheme: light;
+}
+
 body {
   background: var(--surface);
   color: var(--text);
@@ -87,6 +94,26 @@ body {
 h1, h2, h3, h4 {
   font-family: var(--font-archivo), var(--font-inter), system-ui, sans-serif;
   letter-spacing: -0.015em;
+}
+
+/* Seta do <select>.
+   Fica em CSS, e não em classe utilitária, porque `tailwind-merge` junta
+   `bg-surface`, `bg-[url(…)]` e `bg-[right_…]` no mesmo grupo `bg-*` e mantém
+   só a última — o campo acabava sem cor de fundo e com a seta no canto errado.
+   Uma classe própria não entra nesse conflito. */
+.seta-selecao {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px;
+}
+
+/* mesma seta, clara, para campo sobre fundo escuro */
+.seta-selecao-clara {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px;
 }
 
 /* utilitários de layout usados em várias telas */
