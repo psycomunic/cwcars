@@ -81,3 +81,53 @@ export function variacaoFipe(precoCentavos: number, fipeCentavos: number | null 
   if (!fipeCentavos) return null;
   return ((precoCentavos - fipeCentavos) / fipeCentavos) * 100;
 }
+
+/* ------------------------------------------------------------ localização */
+
+export type LocalDaLoja = {
+  /** "Endereço" quando há logradouro; "Localização" quando só há cidade. */
+  rotulo: string;
+  /** Logradouro, ou a cidade quando não há logradouro. */
+  principal: string;
+  /** Cidade e CEP, quando `principal` já é o logradouro. */
+  complemento: string | null;
+};
+
+/**
+ * Como o site mostra onde a loja fica.
+ *
+ * A loja pode não ter ponto físico — foi o caso na estreia, operando só em
+ * Belo Horizonte. Antes, todas as telas condicionavam a localização ao campo
+ * `endereco`: sem logradouro, o site não dizia nem em que cidade ficava.
+ * Aqui a cidade sozinha já é uma resposta válida.
+ *
+ * Devolve `null` só quando não há nada a dizer.
+ */
+export function localDaLoja(loja: {
+  endereco?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  cep?: string | null;
+}): LocalDaLoja | null {
+  const endereco = loja.endereco?.trim() ?? "";
+  const cidade = loja.cidade?.trim() ?? "";
+  const estado = loja.estado?.trim() ?? "";
+  const cep = loja.cep?.trim() ?? "";
+
+  const municipio = [cidade, estado].filter(Boolean).join(" - ");
+  const municipioComCep = cep && municipio ? `${municipio} · ${cep}` : municipio;
+
+  if (endereco) {
+    return {
+      rotulo: "Endereço",
+      principal: endereco,
+      complemento: municipioComCep || null,
+    };
+  }
+
+  if (municipio) {
+    return { rotulo: "Localização", principal: municipioComCep, complemento: null };
+  }
+
+  return null;
+}

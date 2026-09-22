@@ -7,6 +7,7 @@ import {
 } from "@/components/icones-sociais";
 import { Logo } from "@/components/site/logo";
 import { obterConfiguracao } from "@/lib/configuracao";
+import { localDaLoja } from "@/lib/format";
 
 const LINKS_RAPIDOS = [
   { label: "Estoque completo", href: "/estoque" },
@@ -26,6 +27,7 @@ const LINKS_INSTITUCIONAIS = [
 
 export async function Footer() {
   const c = await obterConfiguracao();
+  const local = localDaLoja(c);
   const ano = new Date().getFullYear();
 
   return (
@@ -86,13 +88,17 @@ export async function Footer() {
                 </a>
               </li>
             )}
-            {c.endereco && (
+            {local && (
               <li className="flex items-start gap-2.5">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-brand" />
                 <span>
-                  {c.endereco}
-                  <br />
-                  {c.cidade} - {c.estado} {c.cep && `· ${c.cep}`}
+                  {local.principal}
+                  {local.complemento && (
+                    <>
+                      <br />
+                      {local.complemento}
+                    </>
+                  )}
                 </span>
               </li>
             )}

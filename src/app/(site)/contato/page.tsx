@@ -4,6 +4,7 @@ import { CabecalhoPagina } from "@/components/site/cabecalho-pagina";
 import { FormularioLead } from "@/components/site/formulario-lead";
 import { IconeWhatsapp } from "@/components/icones-sociais";
 import { linkWhatsapp, obterConfiguracao } from "@/lib/configuracao";
+import { localDaLoja } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 
 export default async function PaginaContato() {
   const c = await obterConfiguracao();
+  const local = localDaLoja(c);
   const whatsapp = linkWhatsapp(
     c.whatsapp,
     `Olá! Vim pelo site da ${c.nomeLoja} e gostaria de falar com um consultor.`,
@@ -67,13 +69,12 @@ export default async function PaginaContato() {
             </BlocoContato>
           )}
 
-          {c.endereco && (
-            <BlocoContato icone={MapPin} titulo="Endereço">
-              <p className="text-[15px] font-bold text-text">{c.endereco}</p>
-              <p className="mt-0.5 text-sm text-text-muted">
-                {c.cidade} - {c.estado}
-                {c.cep && ` · ${c.cep}`}
-              </p>
+          {local && (
+            <BlocoContato icone={MapPin} titulo={local.rotulo}>
+              <p className="text-[15px] font-bold text-text">{local.principal}</p>
+              {local.complemento && (
+                <p className="mt-0.5 text-sm text-text-muted">{local.complemento}</p>
+              )}
             </BlocoContato>
           )}
 

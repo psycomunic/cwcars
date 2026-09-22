@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CabecalhoPagina } from "@/components/site/cabecalho-pagina";
 import { obterConfiguracao } from "@/lib/configuracao";
+import { localDaLoja } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function PaginaPrivacidade() {
   const c = await obterConfiguracao();
+  const local = localDaLoja(c);
 
   return (
     <>
@@ -92,9 +94,10 @@ export default async function PaginaPrivacidade() {
                 </li>
               )}
               {c.telefone && <li>Telefone: {c.telefone}</li>}
-              {c.endereco && (
+              {local && (
                 <li>
-                  Endereço: {c.endereco}, {c.cidade} - {c.estado}
+                  {local.rotulo}: {local.principal}
+                  {local.complemento && `, ${local.complemento}`}
                 </li>
               )}
             </ul>

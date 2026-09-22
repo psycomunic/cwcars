@@ -12,6 +12,7 @@ import {
 import { Logo } from "@/components/site/logo";
 import { BotaoLink } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { localDaLoja } from "@/lib/format";
 
 export type DadosHeader = {
   nomeLoja: string;
@@ -61,17 +62,19 @@ export function Header({ dados }: { dados: DadosHeader }) {
   const ativo = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href.split("?")[0]);
 
+  const local = localDaLoja(dados);
+
   return (
     <header className="sticky top-0 z-50 w-full">
       {/* barra superior */}
       <div className="hidden bg-ink text-white/75 lg:block">
         <div className="container-page flex h-9 items-center justify-between text-[12px]">
           <div className="flex items-center gap-5">
-            {dados.endereco && (
+            {local && (
               <span className="inline-flex items-center gap-1.5">
                 <MapPin size={13} className="text-brand" />
-                {dados.endereco}
-                {dados.cidade && `, ${dados.cidade} - ${dados.estado}`}
+                {local.principal}
+                {local.complemento && `, ${local.complemento}`}
               </span>
             )}
             {dados.telefone && (

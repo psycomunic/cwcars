@@ -4,6 +4,7 @@ import { CabecalhoPagina } from "@/components/site/cabecalho-pagina";
 import { BotaoLink, Secao, TituloSecao } from "@/components/ui";
 import { obterConfiguracao } from "@/lib/configuracao";
 import { prisma } from "@/lib/prisma";
+import { localDaLoja } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,7 @@ export default async function PaginaSobre() {
     prisma.veiculo.count({ where: { status: "DISPONIVEL" } }),
     prisma.marca.count({ where: { veiculos: { some: { status: "DISPONIVEL" } } } }),
   ]);
+  const local = localDaLoja(config);
 
   return (
     <>
@@ -125,8 +127,8 @@ export default async function PaginaSobre() {
           <TituloSecao
             titulo="VENHA NOS VISITAR"
             descricao={
-              config.endereco
-                ? `${config.endereco} — ${config.cidade}, ${config.estado}. ${config.horarioVendas}.`
+              local
+                ? `${local.principal}${local.complemento ? ` — ${local.complemento}` : ""}. ${config.horarioVendas}.`
                 : "Agende uma visita e conheça os veículos pessoalmente."
             }
             invertido
