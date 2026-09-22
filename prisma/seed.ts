@@ -340,7 +340,7 @@ async function main() {
         revisoesEmDia: v.revisoesEmDia ?? false,
         descricao: v.descricao,
         videoUrl: v.video ? `/estoque/${v.pasta}/video.mp4` : null,
-        cidade: "Juiz de Fora",
+        cidade: "Belo Horizonte",
         estado: "MG",
         // sem preço definido o anúncio fica como rascunho, fora do site
         status: semPreco ? "RASCUNHO" : "DISPONIVEL",
@@ -386,10 +386,13 @@ async function main() {
       telefone: "(32) 3215-0198",
       whatsapp: "(32) 98811-2233",
       email: "contato@cwmotors.com.br",
-      endereco: "Av. Barão do Rio Branco, 2500",
-      cidade: "Juiz de Fora",
+      // endereço e CEP em branco de propósito: enquanto não houver o endereço
+      // real da loja, as páginas escondem o bloco em vez de publicar um lugar
+      // que não existe. Preencha em Configurações, no painel.
+      endereco: "",
+      cidade: "Belo Horizonte",
       estado: "MG",
-      cep: "36013-020",
+      cep: "",
       horarioVendas: "Seg - Sáb: 9h às 19h",
       horarioServico: "Seg - Sex: 8h às 18h",
       instagram: "https://instagram.com/",

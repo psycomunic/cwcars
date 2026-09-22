@@ -5,7 +5,6 @@ import {
   CircleDollarSign,
   Headset,
   KeyRound,
-  ShieldCheck,
   Tag,
 } from "lucide-react";
 import { BotaoLink, Secao, TituloSecao, Vazio } from "@/components/ui";
@@ -23,11 +22,6 @@ import { obterConfiguracao } from "@/lib/configuracao";
 export const dynamic = "force-dynamic";
 
 const BENEFICIOS = [
-  {
-    icone: ShieldCheck,
-    titulo: "Procedência garantida",
-    texto: "Todo veículo passa por laudo cautelar e revisão completa antes de entrar no estoque.",
-  },
   {
     icone: Tag,
     titulo: "Preço justo",
@@ -153,7 +147,7 @@ export default async function PaginaInicial() {
 
       {/* ----------------------------------------------------- benefícios */}
       <section className="bg-ink py-12">
-        <div className="container-page grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="container-page grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {BENEFICIOS.map((b) => (
             <div key={b.titulo} className="flex gap-3.5">
               <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand">
