@@ -12,17 +12,48 @@ import {
   Menu,
   Settings,
   Tags,
+  UserRound,
+  Users,
   X,
 } from "lucide-react";
 import { acaoSair } from "@/acoes/autenticacao";
 import { cn } from "@/lib/utils";
+import { pode, type Permissao } from "@/lib/permissoes";
 
-const ITENS = [
+/**
+ * `permissao` ausente = todo mundo vê. O que exige permissão some do menu para
+ * quem não tem — o que é só conforto: a recusa de verdade está na ação e na
+ * própria página, porque esconder um link não impede ninguém de digitar a URL.
+ */
+const ITENS: Array<{
+  href: string;
+  label: string;
+  icone: typeof Car;
+  exato?: boolean;
+  permissao?: Permissao;
+}> = [
   { href: "/admin", label: "Painel", icone: LayoutDashboard, exato: true },
   { href: "/admin/veiculos", label: "Veículos", icone: Car },
   { href: "/admin/leads", label: "Leads", icone: Inbox },
-  { href: "/admin/marcas", label: "Marcas e modelos", icone: Tags },
-  { href: "/admin/configuracoes", label: "Configurações", icone: Settings },
+  {
+    href: "/admin/marcas",
+    label: "Marcas e modelos",
+    icone: Tags,
+    permissao: "gerenciarCatalogo",
+  },
+  {
+    href: "/admin/usuarios",
+    label: "Usuários",
+    icone: Users,
+    permissao: "gerenciarUsuarios",
+  },
+  {
+    href: "/admin/configuracoes",
+    label: "Configurações",
+    icone: Settings,
+    permissao: "alterarConfiguracoes",
+  },
+  { href: "/admin/conta", label: "Minha conta", icone: UserRound },
 ];
 
 export function BarraLateral({
@@ -52,7 +83,9 @@ export function BarraLateral({
       </div>
 
       <nav className="flex-1 space-y-1 px-3">
-        {ITENS.map((item) => (
+        {ITENS.filter(
+          (item) => !item.permissao || pode(usuario.papel, item.permissao),
+        ).map((item) => (
           <Link
             key={item.href}
             href={item.href}

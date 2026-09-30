@@ -1,9 +1,11 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import type { PapelUsuario } from "@/generated/prisma/enums";
+import { pode, type Permissao } from "@/lib/permissoes";
 
 export const COOKIE_SESSAO = "cw_sessao";
 const DURACAO_DIAS = 7;
@@ -88,4 +90,24 @@ export async function sair() {
 
 export async function hashSenha(senha: string) {
   return bcrypt.hash(senha, 10);
+}
+
+/**
+ * Exige uma sessão válida. Sem ela, manda para o login.
+ * Usado por toda ação do painel — o proxy só confere a assinatura do JWT.
+ */
+export async function exigirSessao() {
+  const sessao = await sessaoAtual();
+  if (!sessao) redirect("/admin/login");
+  return sessao;
+}
+
+/**
+ * Exige sessão E permissão. Esconder o botão na tela não protege nada: a ação
+ * é uma rota HTTP e pode ser chamada direto, então a checagem tem de estar aqui.
+ */
+export async function exigirPermissao(permissao: Permissao) {
+  const sessao = await exigirSessao();
+  if (!pode(sessao.papel, permissao)) redirect("/admin");
+  return sessao;
 }

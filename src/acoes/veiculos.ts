@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { sessaoAtual } from "@/lib/auth";
+import { exigirPermissao } from "@/lib/auth";
 import { errosDoZod } from "@/lib/validacao";
 import { paraCentavos } from "@/lib/format";
 import { slugify } from "@/lib/utils";
@@ -89,12 +89,6 @@ const esquemaVeiculo = z.object({
   opcionais: z.string().optional(),
 });
 
-async function exigirSessao() {
-  const sessao = await sessaoAtual();
-  if (!sessao) redirect("/admin/login");
-  return sessao;
-}
-
 /** Gera um slug único a partir dos dados do veículo. */
 async function gerarSlug(base: string, idAtual?: string) {
   const raiz = slugify(base) || "veiculo";
@@ -130,7 +124,7 @@ export async function salvarVeiculo(
   _anterior: EstadoVeiculo,
   formData: FormData,
 ): Promise<EstadoVeiculo> {
-  await exigirSessao();
+  await exigirPermissao("gerenciarVeiculos");
 
   const analise = esquemaVeiculo.safeParse(
     Object.fromEntries(formData.entries()),
@@ -281,7 +275,7 @@ export async function salvarVeiculo(
 }
 
 export async function excluirVeiculo(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("excluirVeiculo");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -293,7 +287,7 @@ export async function excluirVeiculo(formData: FormData) {
 }
 
 export async function alternarDestaque(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarVeiculos");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -313,7 +307,7 @@ export async function alternarDestaque(formData: FormData) {
 }
 
 export async function mudarStatusVeiculo(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarVeiculos");
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
 

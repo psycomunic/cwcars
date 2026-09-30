@@ -1,19 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { sessaoAtual } from "@/lib/auth";
+import { exigirPermissao } from "@/lib/auth";
 import { errosDoZod } from "@/lib/validacao";
 import { slugify } from "@/lib/utils";
 import type { EstadoFormulario as EstadoSimples } from "@/lib/estados-formulario";
-
-async function exigirSessao() {
-  const sessao = await sessaoAtual();
-  if (!sessao) redirect("/admin/login");
-  return sessao;
-}
 
 /* -------------------------------------------------------------------- leads */
 
@@ -26,7 +19,7 @@ const STATUS_PERMITIDOS = [
 ] as const;
 
 export async function atualizarLead(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarLeads");
 
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
@@ -50,7 +43,7 @@ export async function atualizarLead(formData: FormData) {
 }
 
 export async function excluirLead(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarLeads");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -73,7 +66,7 @@ export async function criarMarca(
   _anterior: EstadoSimples,
   formData: FormData,
 ): Promise<EstadoSimples> {
-  await exigirSessao();
+  await exigirPermissao("gerenciarCatalogo");
 
   const analise = esquemaMarca.safeParse(Object.fromEntries(formData.entries()));
   if (!analise.success) return { ok: false, erros: errosDoZod(analise.error) };
@@ -95,7 +88,7 @@ export async function criarMarca(
 }
 
 export async function alternarDestaqueMarca(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarCatalogo");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -111,7 +104,7 @@ export async function alternarDestaqueMarca(formData: FormData) {
 }
 
 export async function excluirMarca(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarCatalogo");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -125,7 +118,7 @@ export async function excluirMarca(formData: FormData) {
 
 /** Define (ou remove, enviando vazio) o arquivo de logo de uma marca. */
 export async function salvarLogoMarca(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarCatalogo");
 
   const id = String(formData.get("id") ?? "");
   const logoUrl = String(formData.get("logoUrl") ?? "").trim();
@@ -148,7 +141,7 @@ export async function criarModelo(
   _anterior: EstadoSimples,
   formData: FormData,
 ): Promise<EstadoSimples> {
-  await exigirSessao();
+  await exigirPermissao("gerenciarCatalogo");
 
   const analise = esquemaModelo.safeParse(Object.fromEntries(formData.entries()));
   if (!analise.success) return { ok: false, erros: errosDoZod(analise.error) };
@@ -166,7 +159,7 @@ export async function criarModelo(
 }
 
 export async function excluirModelo(formData: FormData) {
-  await exigirSessao();
+  await exigirPermissao("gerenciarCatalogo");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -207,7 +200,7 @@ export async function salvarConfiguracao(
   _anterior: EstadoSimples,
   formData: FormData,
 ): Promise<EstadoSimples> {
-  await exigirSessao();
+  await exigirPermissao("alterarConfiguracoes");
 
   const analise = esquemaConfiguracao.safeParse(
     Object.fromEntries(formData.entries()),
