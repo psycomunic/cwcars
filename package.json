@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:hostinger": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "seed": "prisma db seed",
