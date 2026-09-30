@@ -12,6 +12,7 @@ import {
   Menu,
   Settings,
   Tags,
+  Wallet,
   UserRound,
   Users,
   X,
@@ -40,6 +41,12 @@ const ITENS: Array<{
     label: "Marcas e modelos",
     icone: Tags,
     permissao: "gerenciarCatalogo",
+  },
+  {
+    href: "/admin/financeiro",
+    label: "Financeiro",
+    icone: Wallet,
+    permissao: "verFinanceiro",
   },
   {
     href: "/admin/usuarios",

@@ -135,6 +135,8 @@ model Veiculo {
   precoFipeCentavos  Int?
   precoMedioCentavos Int?
   precoDeCentavos    Int? // preço "de" riscado, para promoções
+  // quanto a loja pagou no veículo. Só o ADMIN vê: é a base da margem.
+  custoAquisicaoCentavos Int?
 
   quilometragem Int         @default(0)
   cambio        Cambio
@@ -176,6 +178,8 @@ model Veiculo {
   opcionais VeiculoOpcional[]
   leads     Lead[]
   favoritos Favorito[]
+  despesas  DespesaVeiculo[]
+  venda     Venda?
 
   @@index([status, destaque])
   @@index([marcaId])
@@ -242,6 +246,8 @@ model Lead {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
+  venda     Venda?
+
   @@index([status, criadoEm])
   @@index([veiculoId])
   @@map("leads")
@@ -269,6 +275,9 @@ model Usuario {
   papel     PapelUsuario @default(VENDEDOR)
   ativo     Boolean      @default(true)
   criadoEm  DateTime     @default(now())
+
+  vendas    Venda[]
+  despesas  DespesaVeiculo[]
 
   @@map("usuarios")
 }
@@ -302,4 +311,71 @@ model Configuracao {
   atualizadoEm DateTime @updatedAt @default(now())
 
   @@map("configuracoes")
+}
+
+/// Categoria da despesa, para o relatório saber onde o dinheiro foi.
+enum CategoriaDespesa {
+  DOCUMENTACAO
+  MECANICA
+  FUNILARIA
+  ESTETICA
+  TRANSPORTE
+  COMISSAO_COMPRA
+  OUTROS
+}
+
+/// Gasto avulso em um veículo, entre a compra e a venda.
+/// O custo de aquisição não vem para cá: é um só por veículo e fica no próprio
+/// cadastro. Aqui entra tudo que se soma depois — documentação, funilaria,
+/// estética, transporte.
+model DespesaVeiculo {
+  id        String           @id @default(cuid())
+  veiculoId String
+  descricao String
+  categoria CategoriaDespesa @default(OUTROS)
+  valorCentavos Int
+  /// quando o gasto aconteceu, que pode não ser o dia do lançamento
+  data      DateTime         @default(now())
+  /// quem lançou. Fica nulo se a pessoa for excluída — o gasto continua valendo.
+  usuarioId String?
+  criadoEm  DateTime         @default(now())
+
+  veiculo Veiculo  @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([veiculoId])
+  @@index([data])
+  @@map("despesas_veiculo")
+}
+
+/// A venda de um veículo. Um veículo vende uma vez só, daí o vínculo único.
+model Venda {
+  id        String   @id @default(cuid())
+  veiculoId String   @unique
+  /// valor efetivamente fechado, que costuma sair do anunciado na negociação
+  valorCentavos Int
+  /// comissão do vendedor, estipulada no lançamento da venda
+  comissaoCentavos Int @default(0)
+  vendidoEm DateTime @default(now())
+
+  compradorNome     String
+  compradorTelefone String @default("")
+  formaPagamento    String @default("")
+  observacoes       String @default("")
+
+  /// lead que originou a venda, quando houve um
+  leadId    String?  @unique
+  /// vendedor responsável. Nulo se a pessoa for excluída — a venda permanece.
+  vendedorId String?
+
+  criadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  veiculo  Veiculo  @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
+  lead     Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  vendedor Usuario? @relation(fields: [vendedorId], references: [id], onDelete: SetNull)
+
+  @@index([vendidoEm])
+  @@index([vendedorId])
+  @@map("vendas")
 }

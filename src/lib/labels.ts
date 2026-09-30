@@ -63,5 +63,15 @@ export const PAPEL_USUARIO = {
   VENDEDOR: "Vendedor",
 } as const;
 
+export const CATEGORIA_DESPESA = {
+  DOCUMENTACAO: "Documentação",
+  MECANICA: "Mecânica",
+  FUNILARIA: "Funilaria e pintura",
+  ESTETICA: "Estética e limpeza",
+  TRANSPORTE: "Transporte",
+  COMISSAO_COMPRA: "Comissão de compra",
+  OUTROS: "Outros",
+} as const;
+
 export const opcoes = <T extends Record<string, string>>(mapa: T) =>
   Object.entries(mapa).map(([value, label]) => ({ value, label }));
