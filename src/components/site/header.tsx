@@ -12,12 +12,14 @@ import {
 import { Logo } from "@/components/site/logo";
 import { BotaoLink } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { telefoneMascara } from "@/lib/format";
 import { localDaLoja } from "@/lib/format";
 
 export type DadosHeader = {
   nomeLoja: string;
   logoUrl: string | null;
-  telefone: string;
+  /** Os números dos sócios. Vários, porque o atendimento é dividido. */
+  telefones: Array<{ nome: string; telefone: string }>;
   endereco: string;
   cidade: string;
   estado: string;
@@ -77,15 +79,17 @@ export function Header({ dados }: { dados: DadosHeader }) {
                 {local.complemento && `, ${local.complemento}`}
               </span>
             )}
-            {dados.telefone && (
+            {dados.telefones.map((t, i) => (
               <a
-                href={`tel:${dados.telefone.replace(/\D/g, "")}`}
+                key={t.telefone}
+                href={`tel:+55${t.telefone.replace(/\D/g, "")}`}
                 className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
               >
-                <Phone size={13} className="text-brand" />
-                {dados.telefone}
+                {/* o ícone só na primeira: repetido vira ruído na barra */}
+                {i === 0 && <Phone size={13} className="text-brand" />}
+                {telefoneMascara(t.telefone)}
               </a>
-            )}
+            ))}
           </div>
           <div className="flex items-center gap-5">
             <span>Vendas: {dados.horarioVendas}</span>

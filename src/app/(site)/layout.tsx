@@ -3,13 +3,17 @@ import { Footer } from "@/components/site/footer";
 import { WhatsappFlutuante } from "@/components/site/whatsapp-flutuante";
 import { obterConfiguracao } from "@/lib/configuracao";
 import { variaveisDaMarca } from "@/lib/cores";
+import { telefonesDeAtendimento } from "@/lib/rodizio-whatsapp";
 
 export default async function LayoutSite({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const c = await obterConfiguracao();
+  const [c, telefones] = await Promise.all([
+    obterConfiguracao(),
+    telefonesDeAtendimento(),
+  ]);
 
   return (
     <>
@@ -18,7 +22,7 @@ export default async function LayoutSite({
         dados={{
           nomeLoja: c.nomeLoja,
           logoUrl: c.logoUrl,
-          telefone: c.telefone,
+          telefones,
           endereco: c.endereco,
           cidade: c.cidade,
           estado: c.estado,

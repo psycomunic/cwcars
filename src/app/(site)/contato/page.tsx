@@ -5,6 +5,8 @@ import { FormularioLead } from "@/components/site/formulario-lead";
 import { IconeWhatsapp } from "@/components/icones-sociais";
 import { obterConfiguracao } from "@/lib/configuracao";
 import { prisma } from "@/lib/prisma";
+import { telefonesDeAtendimento } from "@/lib/rodizio-whatsapp";
+import { telefoneMascara } from "@/lib/format";
 import { localDaLoja } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
 export default async function PaginaContato() {
   const c = await obterConfiguracao();
   const local = localDaLoja(c);
+  const telefones = await telefonesDeAtendimento();
   // o link passa pelo rodízio em /whatsapp, que escolhe o sócio da vez
   const temWhatsapp =
     (await prisma.atendenteWhatsapp.count({ where: { ativo: true } })) > 0 ||
@@ -32,14 +35,24 @@ export default async function PaginaContato() {
 
       <div className="container-page grid gap-8 py-10 lg:grid-cols-[340px_minmax(0,1fr)]">
         <div className="space-y-4">
-          {c.telefone && (
-            <BlocoContato icone={Phone} titulo="Telefone">
-              <a
-                href={`tel:${c.telefone.replace(/\D/g, "")}`}
-                className="text-[15px] font-bold text-text hover:text-brand"
-              >
-                {c.telefone}
-              </a>
+          {telefones.length > 0 && (
+            <BlocoContato
+              icone={Phone}
+              titulo={telefones.length > 1 ? "Telefones" : "Telefone"}
+            >
+              {telefones.map((t) => (
+                <p key={t.telefone} className="first:mt-0 mt-1.5">
+                  <a
+                    href={`tel:+55${t.telefone.replace(/\D/g, "")}`}
+                    className="text-[15px] font-bold text-text hover:text-brand"
+                  >
+                    {telefoneMascara(t.telefone)}
+                  </a>
+                  {t.nome && (
+                    <span className="ml-2 text-sm text-text-muted">{t.nome}</span>
+                  )}
+                </p>
+              ))}
             </BlocoContato>
           )}
 

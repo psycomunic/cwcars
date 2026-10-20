@@ -7,7 +7,8 @@ import {
 } from "@/components/icones-sociais";
 import { Logo } from "@/components/site/logo";
 import { obterConfiguracao } from "@/lib/configuracao";
-import { localDaLoja } from "@/lib/format";
+import { localDaLoja, telefoneMascara } from "@/lib/format";
+import { telefonesDeAtendimento } from "@/lib/rodizio-whatsapp";
 
 const LINKS_RAPIDOS = [
   { label: "Estoque completo", href: "/estoque" },
@@ -28,6 +29,7 @@ const LINKS_INSTITUCIONAIS = [
 export async function Footer() {
   const c = await obterConfiguracao();
   const local = localDaLoja(c);
+  const telefones = await telefonesDeAtendimento();
   const ano = new Date().getFullYear();
 
   return (
@@ -66,17 +68,20 @@ export async function Footer() {
             Atendimento
           </h3>
           <ul className="space-y-3 text-sm">
-            {c.telefone && (
-              <li className="flex items-start gap-2.5">
+            {telefones.map((t) => (
+              <li key={t.telefone} className="flex items-start gap-2.5">
                 <Phone size={15} className="mt-0.5 shrink-0 text-brand" />
                 <a
-                  href={`tel:${c.telefone.replace(/\D/g, "")}`}
+                  href={`tel:+55${t.telefone.replace(/\D/g, "")}`}
                   className="transition-colors hover:text-white"
                 >
-                  {c.telefone}
+                  {telefoneMascara(t.telefone)}
+                  {t.nome && (
+                    <span className="ml-1.5 text-white/45">{t.nome}</span>
+                  )}
                 </a>
               </li>
-            )}
+            ))}
             {c.email && (
               <li className="flex items-start gap-2.5">
                 <Mail size={15} className="mt-0.5 shrink-0 text-brand" />

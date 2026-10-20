@@ -100,3 +100,27 @@ export function linkDoAtendente(telefone: string, mensagem: string) {
   const comDdi = digitos.startsWith("55") ? digitos : `55${digitos}`;
   return `https://wa.me/${comDdi}?text=${encodeURIComponent(mensagem)}`;
 }
+
+export type TelefoneExibido = { nome: string; telefone: string };
+
+/**
+ * Os telefones que o site mostra (rodapé, contato, barra do topo).
+ *
+ * São os mesmos números do rodízio: eles são o contato da loja, não só o
+ * destino do botão. Quando ninguém está cadastrado, cai no telefone único de
+ * Configurações, para o site nunca ficar sem forma de contato.
+ *
+ * Diferente do rodízio, aqui a ordem é fixa e nada é contabilizado — isto é
+ * leitura de tela, não distribuição de lead.
+ */
+export async function telefonesDeAtendimento(): Promise<TelefoneExibido[]> {
+  const ativos = await prisma.atendenteWhatsapp.findMany({
+    where: { ativo: true },
+    orderBy: [{ ordem: "asc" }, { criadoEm: "asc" }],
+    select: { nome: true, telefone: true },
+  });
+  if (ativos.length > 0) return ativos;
+
+  const { telefone } = await obterConfiguracao();
+  return telefone ? [{ nome: "", telefone }] : [];
+}
