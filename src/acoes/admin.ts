@@ -223,3 +223,99 @@ export async function salvarConfiguracao(
   revalidatePath("/", "layout");
   return { ok: true, mensagem: "Configurações salvas." };
 }
+
+/* ------------------------------------------------- atendentes do WhatsApp */
+
+const esquemaAtendente = z.object({
+  nome: z.string().trim().min(2, "Informe o nome").max(60),
+  telefone: z
+    .string()
+    .trim()
+    .min(10, "Informe o número com DDD")
+    .max(30)
+    .refine((t) => t.replace(/\D/g, "").length >= 10, "Número incompleto"),
+});
+
+export async function criarAtendente(
+  _anterior: EstadoSimples,
+  formData: FormData,
+): Promise<EstadoSimples> {
+  await exigirPermissao("alterarConfiguracoes");
+
+  const dados = esquemaAtendente.safeParse({
+    nome: formData.get("nome"),
+    telefone: formData.get("telefone"),
+  });
+  if (!dados.success) return { ok: false, erros: errosDoZod(dados.error) };
+
+  const digitos = dados.data.telefone.replace(/\D/g, "");
+  const existentes = await prisma.atendenteWhatsapp.findMany({
+    select: { telefone: true, ordem: true },
+  });
+  if (existentes.some((a) => a.telefone.replace(/\D/g, "") === digitos)) {
+    return { ok: false, erros: { telefone: "Este número já está na fila" } };
+  }
+
+  await prisma.atendenteWhatsapp.create({
+    data: {
+      nome: dados.data.nome,
+      telefone: dados.data.telefone,
+      ordem: existentes.length,
+      // entra com a menor contagem da fila, senão nunca seria chamado
+      atendimentos: existentes.length
+        ? await menorContagem()
+        : 0,
+    },
+  });
+
+  revalidatePath("/admin/configuracoes");
+  return { ok: true, mensagem: "Número adicionado ao rodízio." };
+}
+
+/** A menor contagem da fila, para quem entra depois não ficar para trás. */
+async function menorContagem() {
+  const menor = await prisma.atendenteWhatsapp.findFirst({
+    where: { ativo: true },
+    orderBy: { atendimentos: "asc" },
+    select: { atendimentos: true },
+  });
+  return menor?.atendimentos ?? 0;
+}
+
+export async function alternarAtendente(formData: FormData) {
+  await exigirPermissao("alterarConfiguracoes");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const atual = await prisma.atendenteWhatsapp.findUnique({
+    where: { id },
+    select: { ativo: true },
+  });
+  if (!atual) return;
+
+  await prisma.atendenteWhatsapp.update({
+    where: { id },
+    // ao voltar, entra com a menor contagem: ficaria para trás de outra forma
+    data: atual.ativo
+      ? { ativo: false }
+      : { ativo: true, atendimentos: await menorContagem() },
+  });
+
+  revalidatePath("/admin/configuracoes");
+}
+
+export async function excluirAtendente(formData: FormData) {
+  await exigirPermissao("alterarConfiguracoes");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  await prisma.atendenteWhatsapp.delete({ where: { id } }).catch(() => null);
+  revalidatePath("/admin/configuracoes");
+}
+
+/** Zera o placar do rodízio, para recomeçar empatado. */
+export async function zerarRodizio() {
+  await exigirPermissao("alterarConfiguracoes");
+  await prisma.atendenteWhatsapp.updateMany({ data: { atendimentos: 0 } });
+  revalidatePath("/admin/configuracoes");
+}

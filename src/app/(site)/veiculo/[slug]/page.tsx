@@ -29,7 +29,8 @@ import {
   veiculoPorSlug,
   veiculosSimilares,
 } from "@/lib/veiculos";
-import { linkWhatsapp, obterConfiguracao } from "@/lib/configuracao";
+import { obterConfiguracao } from "@/lib/configuracao";
+import { prisma } from "@/lib/prisma";
 import { CAMBIO, CARROCERIA, COMBUSTIVEL, CONDICAO } from "@/lib/labels";
 import { km, moeda, numero, variacaoFipe } from "@/lib/format";
 
@@ -72,10 +73,11 @@ export default async function PaginaVeiculo(
     veiculo.precoFipeCentavos,
   );
 
-  const whatsapp = linkWhatsapp(
-    config.whatsapp,
-    `Olá! Tenho interesse no ${titulo} ${veiculo.anoFabricacao}/${veiculo.anoModelo} anunciado por ${moeda(veiculo.precoCentavos)}.`,
-  );
+  // o link passa pelo rodízio em /whatsapp, que escolhe o sócio da vez e monta
+  // a mensagem com os dados deste veículo
+  const temWhatsapp =
+    (await prisma.atendenteWhatsapp.count({ where: { ativo: true } })) > 0 ||
+    Boolean(config.whatsapp);
 
   const ficha = [
     { icone: Calendar, rotulo: "Ano", valor: `${veiculo.anoFabricacao}/${veiculo.anoModelo}` },
@@ -338,9 +340,9 @@ export default async function PaginaVeiculo(
                   Ver parcelas
                 </BotaoLink>
 
-                {whatsapp && (
+                {temWhatsapp && (
                   <a
-                    href={whatsapp}
+                    href={`/whatsapp?ctx=veiculo&v=${veiculo.slug}`}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-2 inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[#25D366] text-sm font-semibold text-white transition-opacity hover:opacity-90"

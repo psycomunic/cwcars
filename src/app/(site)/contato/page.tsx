@@ -3,7 +3,8 @@ import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CabecalhoPagina } from "@/components/site/cabecalho-pagina";
 import { FormularioLead } from "@/components/site/formulario-lead";
 import { IconeWhatsapp } from "@/components/icones-sociais";
-import { linkWhatsapp, obterConfiguracao } from "@/lib/configuracao";
+import { obterConfiguracao } from "@/lib/configuracao";
+import { prisma } from "@/lib/prisma";
 import { localDaLoja } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -16,10 +17,10 @@ export const metadata: Metadata = {
 export default async function PaginaContato() {
   const c = await obterConfiguracao();
   const local = localDaLoja(c);
-  const whatsapp = linkWhatsapp(
-    c.whatsapp,
-    `Olá! Vim pelo site da ${c.nomeLoja} e gostaria de falar com um consultor.`,
-  );
+  // o link passa pelo rodízio em /whatsapp, que escolhe o sócio da vez
+  const temWhatsapp =
+    (await prisma.atendenteWhatsapp.count({ where: { ativo: true } })) > 0 ||
+    Boolean(c.whatsapp);
 
   return (
     <>
@@ -42,15 +43,15 @@ export default async function PaginaContato() {
             </BlocoContato>
           )}
 
-          {whatsapp && (
+          {temWhatsapp && (
             <BlocoContato icone={IconeWhatsapp} titulo="WhatsApp">
               <a
-                href={whatsapp}
+                href="/whatsapp?ctx=contato"
                 target="_blank"
                 rel="noreferrer"
                 className="text-[15px] font-bold text-text hover:text-brand"
               >
-                {c.whatsapp}
+                Falar no WhatsApp
               </a>
               <p className="mt-1 text-xs text-text-muted">
                 Atendimento rápido em horário comercial.

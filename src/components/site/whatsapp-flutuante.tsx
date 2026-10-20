@@ -1,17 +1,22 @@
 import { IconeWhatsapp } from "@/components/icones-sociais";
-import { linkWhatsapp, obterConfiguracao } from "@/lib/configuracao";
+import { prisma } from "@/lib/prisma";
+import { obterConfiguracao } from "@/lib/configuracao";
 
+/**
+ * O href aponta para /whatsapp, não direto para o wa.me: é lá que o servidor
+ * decide de qual sócio é a vez. Sem isso não haveria como dividir os leads.
+ */
 export async function WhatsappFlutuante() {
-  const c = await obterConfiguracao();
-  const href = linkWhatsapp(
-    c.whatsapp,
-    `Olá! Vim pelo site da ${c.nomeLoja} e gostaria de mais informações.`,
-  );
-  if (!href) return null;
+  const [atendentes, c] = await Promise.all([
+    prisma.atendenteWhatsapp.count({ where: { ativo: true } }),
+    obterConfiguracao(),
+  ]);
+  // nada cadastrado e nenhum número na loja: o botão não leva a lugar nenhum
+  if (atendentes === 0 && !c.whatsapp) return null;
 
   return (
     <a
-      href={href}
+      href="/whatsapp?ctx=geral"
       target="_blank"
       rel="noreferrer"
       aria-label="Falar no WhatsApp"

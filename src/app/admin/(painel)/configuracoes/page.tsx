@@ -1,10 +1,15 @@
+import { AtendentesWhatsapp } from "@/components/admin/atendentes-whatsapp";
 import { FormularioConfiguracoes } from "@/components/admin/formulario-configuracoes";
 import { obterConfiguracao } from "@/lib/configuracao";
+import { listarAtendentes } from "@/lib/rodizio-whatsapp";
 
 export const dynamic = "force-dynamic";
 
 export default async function PaginaConfiguracoes() {
-  const c = await obterConfiguracao();
+  const [c, atendentes] = await Promise.all([
+    obterConfiguracao(),
+    listarAtendentes(),
+  ]);
 
   return (
     <>
@@ -39,6 +44,21 @@ export default async function PaginaConfiguracoes() {
           tiktok: c.tiktok,
         }}
       />
+
+      <section className="mt-6 rounded-[var(--radius)] border border-line bg-surface p-5">
+        <h2 className="mb-4 text-sm font-bold text-text">
+          Rodízio do WhatsApp
+        </h2>
+        <AtendentesWhatsapp
+          atendentes={atendentes.map((a) => ({
+            id: a.id,
+            nome: a.nome,
+            telefone: a.telefone,
+            ativo: a.ativo,
+            atendimentos: a.atendimentos,
+          }))}
+        />
+      </section>
     </>
   );
 }

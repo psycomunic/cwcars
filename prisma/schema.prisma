@@ -379,3 +379,25 @@ model Venda {
   @@index([vendedorId])
   @@map("vendas")
 }
+
+/// Número de WhatsApp que atende os clientes do site.
+///
+/// São os sócios: cada clique no botão vai para um deles, em rodízio, para os
+/// leads se dividirem. O rodízio é global — não por visitante —, então o
+/// contador mora aqui, e não no navegador de quem clica.
+model AtendenteWhatsapp {
+  id       String  @id @default(cuid())
+  nome     String
+  telefone String
+  ativo    Boolean @default(true)
+  /// desempate quando dois estão com a mesma contagem
+  ordem    Int     @default(0)
+  /// quantos cliques já recebeu. É por aqui que o rodízio escolhe o próximo:
+  /// sempre o de menor contagem, o que se reequilibra sozinho quando alguém
+  /// entra, sai ou fica um tempo desativado.
+  atendimentos Int @default(0)
+  criadoEm DateTime @default(now())
+
+  @@index([ativo, atendimentos])
+  @@map("atendentes_whatsapp")
+}
