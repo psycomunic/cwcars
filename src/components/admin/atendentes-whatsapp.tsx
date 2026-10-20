@@ -62,14 +62,18 @@ export function AtendentesWhatsapp({ atendentes }: { atendentes: Atendente[] }) 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-semibold text-text">
-                    {atendente.nome}
+                    {atendente.nome || atendente.telefone}
                   </span>
                   {!atendente.ativo && <Selo tom="perigo">fora da fila</Selo>}
                   {atendente.ativo && proximo?.id === atendente.id && (
                     <Selo tom="sucesso">próximo</Selo>
                   )}
                 </div>
-                <p className="text-[13px] text-text-muted">{atendente.telefone}</p>
+                {atendente.nome && (
+                  <p className="text-[13px] text-text-muted">
+                    {atendente.telefone}
+                  </p>
+                )}
               </div>
 
               <div className="text-right">
@@ -97,7 +101,8 @@ export function AtendentesWhatsapp({ atendentes }: { atendentes: Atendente[] }) 
               <form
                 action={excluirAtendente}
                 onSubmit={(e) => {
-                  if (!confirm(`Remover ${atendente.nome} do rodízio?`)) {
+                  const quem = atendente.nome || atendente.telefone;
+                  if (!confirm(`Remover ${quem} do rodízio?`)) {
                     e.preventDefault();
                   }
                 }}
@@ -118,11 +123,12 @@ export function AtendentesWhatsapp({ atendentes }: { atendentes: Atendente[] }) 
 
       <form ref={form} action={acao} className="flex flex-wrap items-end gap-2">
         <GrupoCampo
-          rotulo="Nome"
+          rotulo="Nome (opcional)"
           erro={estado.erros?.nome}
+          ajuda="Só para você saber de quem é. O cliente não vê."
           className="min-w-[160px] flex-1"
         >
-          <Campo name="nome" placeholder="Ex.: Caio" required className="h-9 text-[13px]" />
+          <Campo name="nome" placeholder="Ex.: Caio" className="h-9 text-[13px]" />
         </GrupoCampo>
         <GrupoCampo
           rotulo="WhatsApp"

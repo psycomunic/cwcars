@@ -48,9 +48,6 @@ export default async function PaginaContato() {
                   >
                     {telefoneMascara(t.telefone)}
                   </a>
-                  {t.nome && (
-                    <span className="ml-2 text-sm text-text-muted">{t.nome}</span>
-                  )}
                 </p>
               ))}
             </BlocoContato>

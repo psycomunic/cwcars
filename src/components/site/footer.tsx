@@ -76,9 +76,6 @@ export async function Footer() {
                   className="transition-colors hover:text-white"
                 >
                   {telefoneMascara(t.telefone)}
-                  {t.nome && (
-                    <span className="ml-1.5 text-white/45">{t.nome}</span>
-                  )}
                 </a>
               </li>
             ))}

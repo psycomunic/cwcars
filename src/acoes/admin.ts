@@ -227,7 +227,9 @@ export async function salvarConfiguracao(
 /* ------------------------------------------------- atendentes do WhatsApp */
 
 const esquemaAtendente = z.object({
-  nome: z.string().trim().min(2, "Informe o nome").max(60),
+  // opcional: serve só para a loja saber de quem é o número no painel.
+  // O cliente nunca vê — o site mostra apenas o telefone.
+  nome: z.string().trim().max(60).optional().default(""),
   telefone: z
     .string()
     .trim()
